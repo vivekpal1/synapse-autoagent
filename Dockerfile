@@ -17,5 +17,7 @@ COPY workflows ./workflows
 # Receipts + outputs persist via a mounted volume in compose.
 RUN mkdir -p receipts data/outputs
 
-# Default: the autonomous agent scheduler. Override `command:` for the dashboard.
-CMD ["npx", "tsx", "apps/agent/src/main.ts"]
+# Default: run the autonomous agent scheduler + the dashboard together (one web service).
+# The dashboard binds to $PORT (Railway/PaaS inject it). DRY_RUN defaults true (no spend)
+# until you set DRY_RUN=false and provide a funded wallet via env.
+CMD ["npm", "start"]

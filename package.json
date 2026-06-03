@@ -26,7 +26,8 @@
     "report": "tsx scripts/report-volume.ts",
     "agent": "tsx apps/agent/src/main.ts",
     "agent:once": "tsx apps/agent/src/main.ts --once",
-    "dashboard": "tsx apps/dashboard/src/server.ts"
+    "dashboard": "tsx apps/dashboard/src/server.ts",
+    "start": "tsx apps/agent/src/main.ts & tsx apps/dashboard/src/server.ts"
   },
   "devDependencies": {
     "@types/node": "^22.10.0",

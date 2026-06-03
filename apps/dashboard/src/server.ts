@@ -82,6 +82,8 @@ app.get('/api/agent', async (_req, res) => {
 
 app.use(express.static(join(__dirname, '..', 'public')));
 
-app.listen(env.DASHBOARD_PORT, () => {
-  console.log(`\n  Dashboard → http://localhost:${env.DASHBOARD_PORT}\n  (reads ${ledger.path})\n`);
+// Railway (and most PaaS) inject PORT; fall back to the configured DASHBOARD_PORT locally.
+const port = Number(process.env.PORT) || env.DASHBOARD_PORT;
+app.listen(port, '0.0.0.0', () => {
+  console.log(`\n  Dashboard → http://localhost:${port}\n  (reads ${ledger.path})\n`);
 });

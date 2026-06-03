@@ -1,0 +1,25 @@
+# Run the autonomous agent + the volume dashboard together.
+#   cp .env.example .env   # fill in keys; set DRY_RUN=false to go live
+#   docker compose up --build
+services:
+  agent:
+    build: .
+    env_file: .env
+    command: ['npx', 'tsx', 'apps/agent/src/main.ts']
+    volumes:
+      - ./receipts:/app/receipts
+      - ./data:/app/data
+      - ./workflows:/app/workflows
+      - ./keys:/app/keys:ro
+    restart: unless-stopped
+
+  dashboard:
+    build: .
+    env_file: .env
+    command: ['npx', 'tsx', 'apps/dashboard/src/server.ts']
+    ports:
+      - '${DASHBOARD_PORT:-4040}:${DASHBOARD_PORT:-4040}'
+    volumes:
+      - ./receipts:/app/receipts:ro
+      - ./keys:/app/keys:ro
+    restart: unless-stopped

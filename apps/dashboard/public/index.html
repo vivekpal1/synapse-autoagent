@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Synapse AutoAgent · Volume</title>
+    <style>
+      /* Monochrome: pure black / white / grey only — no hues anywhere. */
+      :root {
+        --bg: #000000;
+        --panel: #0c0c0c;
+        --panel-2: #151515;
+        --line: #262626;
+        --text: #f4f4f4;
+        --muted: #8a8a8a;
+        --bright: #ffffff;
+      }
+      * { box-sizing: border-box; }
+      body {
+        margin: 0; background: radial-gradient(1200px 600px at 80% -10%, #141414 0%, var(--bg) 55%);
+        color: var(--text); font: 15px/1.5 ui-sans-serif, -apple-system, "Segoe UI", Roboto, sans-serif;
+        -webkit-font-smoothing: antialiased; min-height: 100vh;
+      }
+      .wrap { max-width: 1040px; margin: 0 auto; padding: 32px 20px 80px; }
+      header { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+      h1 { font-size: 20px; margin: 0; letter-spacing: -0.01em; }
+      h1 span { color: var(--bright); font-weight: 700; }
+      .sub { color: var(--muted); font-size: 13px; margin-top: 2px; }
+      .badge { font-size: 12px; font-weight: 600; padding: 5px 11px; border-radius: 999px; border: 1px solid var(--line); color: var(--muted); }
+      .badge.live { background: var(--bright); color: #000; border-color: var(--bright); font-weight: 700; } /* inverted = stands out */
+      .badge.dry { background: transparent; color: var(--text); border-color: #3a3a3a; }
+      .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-top: 24px; }
+      .card { background: linear-gradient(180deg, var(--panel), var(--panel-2)); border: 1px solid var(--line); border-radius: 16px; padding: 18px 20px; }
+      .card .k { color: var(--muted); font-size: 12px; text-transform: uppercase; letter-spacing: .06em; }
+      .card .v { font-size: 30px; font-weight: 700; margin-top: 8px; letter-spacing: -0.02em; color: var(--bright); }
+      .card .v small { font-size: 14px; color: var(--muted); font-weight: 500; }
+      .card.hero { grid-column: span 1; }
+      .card .meta { color: var(--muted); font-size: 12px; margin-top: 6px; }
+      h2 { font-size: 14px; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; margin: 34px 0 12px; }
+      .bars { display: flex; flex-direction: column; gap: 10px; }
+      .bar { display: grid; grid-template-columns: 110px 1fr 110px; align-items: center; gap: 12px; }
+      .bar .name { font-size: 13px; }
+      .track { height: 10px; background: #161616; border-radius: 999px; overflow: hidden; border: 1px solid var(--line); }
+      .fill { height: 100%; background: var(--bright); border-radius: 999px; }
+      .bar .amt { text-align: right; font-variant-numeric: tabular-nums; color: var(--muted); font-size: 13px; }
+      table { width: 100%; border-collapse: collapse; margin-top: 6px; font-size: 13px; }
+      th { text-align: left; color: var(--muted); font-weight: 500; padding: 8px 10px; border-bottom: 1px solid var(--line); font-size: 12px; }
+      td { padding: 9px 10px; border-bottom: 1px solid var(--line); vertical-align: top; }
+      td.amt { text-align: right; font-variant-numeric: tabular-nums; }
+      .tag { font-size: 11px; padding: 2px 8px; border-radius: 999px; border: 1px solid var(--line); }
+      .tag.paid { color: #000; background: var(--bright); border-color: var(--bright); font-weight: 600; } /* paid = solid white */
+      .tag.sim { color: var(--muted); border: 1px dashed #3a3a3a; background: transparent; } /* sim = dashed/dim */
+      a { color: var(--bright); text-decoration: underline; text-underline-offset: 2px; }
+      a:hover { opacity: .7; }
+      .reg { margin-top: 10px; padding: 14px 16px; border: 1px solid var(--line); border-radius: 12px; background: var(--panel); font-size: 13px; }
+      .reg .ok { color: var(--bright); }
+      .reg .no { color: var(--muted); }
+      .foot { color: var(--muted); font-size: 12px; margin-top: 30px; }
+      code { background: var(--panel-2); padding: 1px 6px; border-radius: 6px; font-size: 12px; }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <header>
+        <div>
+          <h1><span>Synapse AutoAgent</span> · Ace Data Cloud Volume</h1>
+          <div class="sub">Category 2 · x402 via AceData facilitator · autonomous workflows on Solana</div>
+        </div>
+        <div id="mode" class="badge">…</div>
+      </header>
+
+      <div class="grid">
+        <div class="card hero"><div class="k">AceData volume (real)</div><div class="v" id="aceReal">—</div><div class="meta" id="aceSim"></div></div>
+        <div class="card"><div class="k">Total paid calls</div><div class="v" id="calls">—</div><div class="meta" id="callsMeta"></div></div>
+        <div class="card"><div class="k">SAP agent</div><div class="v" id="regV" style="font-size:18px">—</div><div class="meta" id="regMeta"></div></div>
+      </div>
+
+      <h2>Volume by AceData service</h2>
+      <div class="bars" id="bars"></div>
+
+      <h2>Recent payments</h2>
+      <table>
+        <thead><tr><th>Time</th><th>Service</th><th>Workflow</th><th>Status</th><th class="amt">USDC</th><th>Tx</th></tr></thead>
+        <tbody id="rows"><tr><td colspan="6" style="color:var(--muted)">loading…</td></tr></tbody>
+      </table>
+
+      <div class="reg" id="reg"></div>
+      <div class="foot">Auto-refreshes every 10s. Receipts come from the on-disk ledger; <code>Tx</code> links resolve on Synapse Explorer. This page is the buyer-side proof of Ace Data Cloud consumption volume.</div>
+    </div>
+
+    <script>
+      const fmt = (n) => '$' + (n || 0).toFixed(4);
+      async function load() {
+        try {
+          const [v, a] = await Promise.all([
+            fetch('/api/volume').then((r) => r.json()),
+            fetch('/api/agent').then((r) => r.json()),
+          ]);
+          const mode = document.getElementById('mode');
+          mode.textContent = v.dryRun ? 'DRY-RUN' : 'LIVE · mainnet';
+          mode.className = 'badge ' + (v.dryRun ? 'dry' : 'live');
+
+          document.getElementById('aceReal').innerHTML = fmt(v.category.acedata.realUsd) + ' <small>USDC</small>';
+          document.getElementById('aceSim').textContent = 'simulated: ' + fmt(v.category.acedata.simUsd) + ' · ' + v.category.acedata.count + ' receipts';
+          document.getElementById('calls').textContent = v.recent.length ? v.category.acedata.count : 0;
+          document.getElementById('callsMeta').textContent = 'across all workflows';
+
+          // Service bars
+          const entries = Object.entries(v.byService).sort((x, y) => y[1].realUsd - x[1].realUsd);
+          const max = Math.max(...entries.map((e) => e[1].realUsd), 0.0001);
+          document.getElementById('bars').innerHTML = entries.length
+            ? entries.map(([k, s]) => `<div class="bar"><div class="name">${k}</div><div class="track"><div class="fill" style="width:${Math.max(4, (s.realUsd / max) * 100)}%"></div></div><div class="amt">${fmt(s.realUsd)} · ${s.count}×</div></div>`).join('')
+            : '<div style="color:var(--muted)">No receipts yet — run <code>npm run agent:once</code>.</div>';
+
+          // Recent rows
+          document.getElementById('rows').innerHTML = v.recent.length
+            ? v.recent.map((r) => `<tr>
+                <td style="color:var(--muted)">${new Date(r.ts).toLocaleTimeString()}</td>
+                <td>${r.service}</td>
+                <td style="color:var(--muted)">${r.workflow}</td>
+                <td><span class="tag ${r.dryRun ? 'sim' : 'paid'}">${r.dryRun ? 'sim' : 'paid'}</span></td>
+                <td class="amt">${fmt(r.usd)}</td>
+                <td>${r.explorerUrl ? `<a href="${r.explorerUrl}" target="_blank">${r.tx.slice(0, 8)}…</a>` : '—'}</td>
+              </tr>`).join('')
+            : '<tr><td colspan="6" style="color:var(--muted)">No payments yet.</td></tr>';
+
+          // Registration
+          document.getElementById('regV').textContent = a.registered ? '✓ registered' : (a.wallet ? 'not yet' : 'no wallet');
+          document.getElementById('regMeta').textContent = a.wallet ? a.wallet.slice(0, 10) + '…' : 'set SOLANA_KEYPAIR_PATH';
+          const reg = document.getElementById('reg');
+          if (a.wallet) {
+            reg.innerHTML = a.registered
+              ? `<span class="ok">●</span> Agent <b>${a.agent?.name ?? ''}</b> registered on SAP mainnet — <a href="${a.explorerUrl}" target="_blank">view on Explorer</a>`
+              : `<span class="no">●</span> Wallet <code>${a.wallet}</code> not registered yet — run <code>npm run register</code>.`;
+          } else {
+            reg.innerHTML = '<span class="no">●</span> No agent wallet configured. Set <code>SOLANA_KEYPAIR_PATH</code> in <code>.env</code>.';
+          }
+        } catch (e) {
+          document.getElementById('rows').innerHTML = '<tr><td colspan="6" style="color:#cccccc">dashboard error: ' + e.message + '</td></tr>';
+        }
+      }
+      load();
+      setInterval(load, 10000);
+    </script>
+  </body>
+</html>

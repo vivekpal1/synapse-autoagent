@@ -1,0 +1,55 @@
+# Content Studio
+# Trigger → AI plan → LLM copywriting → image generation → audio voiceover → record.
+# Uses 3 distinct Ace Data Cloud services (chat, image, tts), each paid via x402.
+name: Content Studio
+category: acedata-x402
+description: Generates a complete social post — copy, hero image, and a voiceover — for a given product, paying each AceData service via x402.
+trigger:
+  type: interval
+  everyMs: 1800000 # every 30 min
+vars:
+  product: 'Synapse AutoAgent — an autonomous Solana agent that pays for AI per-call via x402'
+steps:
+  - id: copy
+    kind: acedata.chat
+    note: 'AceData service #1 — write the post copy'
+    params:
+      input:
+        model: gpt-4o-mini
+        system: 'You are a crisp crypto-native copywriter. Write a punchy 280-char post. Plain text, no hashtags spam.'
+        prompt: 'Write a launch post for: ${state.product}'
+        max_tokens: 200
+
+  - id: image
+    kind: acedata.image
+    note: 'AceData service #2 — generate a hero image'
+    params:
+      pollAttempts: 0 # generation is paid now; asset URL may arrive async
+      input:
+        prompt: 'a sleek neon visualization of an autonomous AI agent paying on the Solana blockchain, cinematic, 16:9'
+        mode: fast
+
+  - id: voiceover
+    kind: acedata.tts
+    note: 'AceData service #3 — voiceover of the copy'
+    params:
+      input:
+        text: '${steps.copy.text}'
+        engine: s2-pro
+        format: mp3
+
+  - id: record
+    kind: record
+    note: Assemble the content package
+    params:
+      save: true
+      title: 'Content Package — ${state.product}'
+      body: |
+        ## Copy
+        ${steps.copy.text}
+
+        ## Hero image
+        ${steps.image.url}
+
+        ## Voiceover
+        ${steps.voiceover.url}

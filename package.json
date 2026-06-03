@@ -1,0 +1,45 @@
+{
+  "name": "synapse-autoagent",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Autonomous on-chain Solana agent: discovers tools via SAP, executes AI tasks (Ace Data Cloud + Synapse Sentinel), settles payments via x402 / on-chain escrow — fully end-to-end.",
+  "license": "MIT",
+  "engines": {
+    "node": ">=18"
+  },
+  "workspaces": [
+    "packages/*",
+    "apps/*"
+  ],
+  "scripts": {
+    "build": "tsc --build",
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "lint": "eslint . --ext .ts",
+    "format": "prettier --write \"**/*.{ts,json,md}\"",
+    "doctor": "tsx scripts/doctor.ts",
+    "balances": "tsx scripts/check-balances.ts",
+    "inspect:402": "tsx scripts/inspect-402.ts",
+    "register": "tsx scripts/register-agent.ts",
+    "report": "tsx scripts/report-volume.ts",
+    "agent": "tsx apps/agent/src/main.ts",
+    "agent:once": "tsx apps/agent/src/main.ts --once",
+    "dashboard": "tsx apps/dashboard/src/server.ts"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.0",
+    "@typescript-eslint/eslint-plugin": "^8.18.0",
+    "@typescript-eslint/parser": "^8.18.0",
+    "eslint": "^8.57.1",
+    "prettier": "^3.4.2",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.2",
+    "vitest": "^2.1.8"
+  },
+  "dependencies": {
+    "@acedatacloud/sdk": "^2026.504.2",
+    "@acedatacloud/x402-client": "^2026.531.5"
+  }
+}

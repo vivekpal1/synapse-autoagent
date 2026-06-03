@@ -1,0 +1,67 @@
+# Autonomous Research Brief
+# Trigger → discover (SAP) → AI plan → web search → LLM synthesis → audio narration → record.
+# Uses 3 distinct Ace Data Cloud services (chat, search, tts), each paid via x402.
+name: Autonomous Research Brief
+category: acedata-x402
+description: Researches a topic via AceData web search, synthesizes a brief with an LLM, and narrates it to audio — fully autonomous, paid per-service via x402.
+trigger:
+  type: interval
+  everyMs: 900000 # every 15 min
+vars:
+  topic: 'Autonomous AI agents settling payments on Solana with x402'
+steps:
+  - id: discover
+    kind: discover
+    note: Discover available agents/tools on SAP (proves on-chain tool discovery)
+    optional: true
+    params:
+      limit: 10
+
+  - id: plan
+    kind: ai.plan
+    note: LLM turns the goal into a concrete research plan (AI capability + autonomy)
+    params:
+      goal: 'Research and write a concise brief on: ${state.topic}. Decide the best web search query.'
+
+  - id: search
+    kind: acedata.search
+    note: 'AceData service #1 — Google SERP web search'
+    params:
+      input:
+        query: '${state.topic}'
+        number: 8
+
+  - id: summarize
+    kind: acedata.chat
+    note: 'AceData service #2 — LLM synthesizes the brief from search results'
+    params:
+      input:
+        model: gpt-4o-mini
+        system: 'You are a precise research analyst. Write a tight ~150-word brief with 3 bullet takeaways. Plain text.'
+        prompt: "TOPIC: ${state.topic}\n\nPLAN:\n${steps.plan.text}\n\nSEARCH RESULTS (JSON):\n${steps.search.artifact}"
+        max_tokens: 500
+
+  - id: narrate
+    kind: acedata.tts
+    note: 'AceData service #3 — narrate the brief to speech (Fish TTS)'
+    params:
+      input:
+        text: '${steps.summarize.text}'
+        engine: s2-pro
+        format: mp3
+
+  - id: record
+    kind: record
+    note: Assemble the final deliverable (no payment)
+    params:
+      save: true
+      title: 'Research Brief — ${state.topic}'
+      body: |
+        ## Plan
+        ${steps.plan.text}
+
+        ## Brief
+        ${steps.summarize.text}
+
+        ## Narration (audio)
+        ${steps.narrate.url}

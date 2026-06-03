@@ -1,0 +1,19 @@
+{
+  "name": "@autoagent/agent",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "bin": {
+    "synapse-autoagent": "./src/main.ts"
+  },
+  "dependencies": {
+    "@autoagent/acedata": "0.1.0",
+    "@autoagent/config": "0.1.0",
+    "@autoagent/core": "0.1.0",
+    "@autoagent/sap": "0.1.0",
+    "@autoagent/wallet": "0.1.0",
+    "@autoagent/x402": "0.1.0",
+    "@solana/web3.js": "^1.98.4",
+    "yaml": "^2.6.1"
+  }
+}

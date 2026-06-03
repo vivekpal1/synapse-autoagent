@@ -1,0 +1,44 @@
+# deps
+node_modules/
+.pnp.*
+.yarn/*
+
+# build
+dist/
+build/
+*.tsbuildinfo
+.next/
+out/
+
+# env & secrets — NEVER commit keys or wallets
+.env
+.env.*
+!.env.example
+*.key
+*.pem
+wallet.json
+keypair.json
+keys/
+secrets/
+
+# data & logs
+*.log
+logs/
+data/
+*.sqlite
+*.sqlite3
+*.db
+receipts/*.json
+receipts/*.ndjson
+!receipts/.gitkeep
+
+# os / editor
+.DS_Store
+.idea/
+.vscode/*
+!.vscode/extensions.json
+*.local
+
+# coverage / test
+coverage/
+.nyc_output/

@@ -35,12 +35,12 @@
     "@typescript-eslint/parser": "^8.18.0",
     "eslint": "^8.57.1",
     "prettier": "^3.4.2",
-    "tsx": "^4.19.2",
     "typescript": "^5.7.2",
     "vitest": "^2.1.8"
   },
   "dependencies": {
     "@acedatacloud/sdk": "^2026.504.2",
-    "@acedatacloud/x402-client": "^2026.531.5"
+    "@acedatacloud/x402-client": "^2026.531.5",
+    "tsx": "^4.19.2"
   }
 }

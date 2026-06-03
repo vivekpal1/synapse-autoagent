@@ -31,4 +31,7 @@ export interface X402PayResult {
   network: string;
   signedTxBase64?: string;
   dryRun: boolean;
+  /** Set when the transfer SETTLED but the server then errored (≥300). The payment
+   * still counts as volume; the caller should record it and stop (not retry-pay). */
+  serviceError?: string;
 }

@@ -103,6 +103,18 @@ export function registerHandlers(registry: StepRegistry, env: Env): void {
             ]
           : [];
 
+      // Payment settled but AceData failed to serve: volume is recorded (receipt below),
+      // but we stop the run so we don't keep paying into a service outage.
+      if (outcome.serviceError) {
+        return {
+          ok: false,
+          output: { summary: outcome.result.summary },
+          receipt,
+          artifacts,
+          note: `paid but AceData errored — ${outcome.serviceError}`,
+        };
+      }
+
       return {
         ok: true,
         output: {

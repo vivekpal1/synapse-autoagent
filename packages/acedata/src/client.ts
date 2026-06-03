@@ -30,6 +30,8 @@ export interface AceCallOutcome {
   label: string;
   result: AceServiceResult;
   payment: PaymentInfo;
+  /** Set when the payment settled (volume counted) but AceData failed to serve the call. */
+  serviceError?: string;
 }
 
 /** Parse application/json OR x-ndjson (returns the last complete JSON event). */
@@ -202,6 +204,22 @@ export class AceDataClient {
         });
       }
 
+      if (pay.serviceError) {
+        // Transfer settled (volume counts) but AceData errored — record it, flag the error.
+        return this.outcome(
+          svc,
+          simulateResult(svc, input),
+          BigInt(pay.amountAtomic),
+          {
+            dryRun: false,
+            payTo: pay.payTo || undefined,
+            txSignature: pay.signedTxBase64,
+            meta: { mode: 'x402', serviceError: pay.serviceError },
+          },
+          pay.serviceError,
+        );
+      }
+
       // Paid: parse the real result and (lightly) poll task-based services.
       const json = await parseResponse(pay.response);
       let result = svc.extractResult(json);
@@ -262,6 +280,7 @@ export class AceDataClient {
     result: AceServiceResult,
     amountAtomic: bigint,
     p: { dryRun: boolean; payTo?: string; txSignature?: string; meta?: Record<string, unknown> },
+    serviceError?: string,
   ): AceCallOutcome {
     const payment: PaymentInfo = {
       flow: 'acedata-x402',
@@ -274,6 +293,6 @@ export class AceDataClient {
       dryRun: p.dryRun,
       meta: { serviceId: svc.id, label: svc.label, ...(p.meta ?? {}) },
     };
-    return { serviceId: svc.id, label: svc.label, result, payment };
+    return { serviceId: svc.id, label: svc.label, result, payment, serviceError };
   }
 }

@@ -206,15 +206,8 @@ export async function payWithSolanaX402(opts: X402PayOptions): Promise<X402PayRe
     if (paidRes.status < 500) break; // success or a client error — stop retrying
     await new Promise((r) => setTimeout(r, 2_000 * (attempt + 1)));
   }
-  if (paidRes.status >= 300) {
-    const text = await paidRes.text().catch(() => '');
-    throw new PaymentError(
-      `Paid retry to ${opts.url} failed (${paidRes.status}) after settling ${signature}: ${text.slice(0, 200)}`,
-    );
-  }
-
-  return {
-    paid: true,
+  const base = {
+    paid: true as const, // the transfer SETTLED — USDC consumed = real volume
     response: paidRes,
     amountAtomic: amount.toString(),
     payTo: accept.payTo,
@@ -223,4 +216,12 @@ export async function payWithSolanaX402(opts: X402PayOptions): Promise<X402PayRe
     signedTxBase64: signature, // the on-chain settlement signature
     dryRun: false,
   };
+
+  if (paidRes.status >= 300) {
+    // Don't throw away the volume: we already paid. Flag the service error so the
+    // caller records the receipt and stops (no double-pay).
+    const text = await paidRes.text().catch(() => '');
+    return { ...base, serviceError: `${paidRes.status}: ${text.slice(0, 200)}` };
+  }
+  return base;
 }
